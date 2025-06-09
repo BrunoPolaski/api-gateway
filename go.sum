@@ -1,0 +1,6 @@
+github.com/BrunoPolaski/go-logger v0.0.0-20250609165707-f03116ecb295 h1:8AjgDFa7Fpl3VR/hjknhDflKs0KdvkDxgMRl+k+uq8M=
+github.com/BrunoPolaski/go-logger v0.0.0-20250609165707-f03116ecb295/go.mod h1:ZUY2Iakc7HdWovdqUKqAuYjVH6rIvEVdurVt0Pehk9w=
+github.com/BrunoPolaski/go-rest-err v0.0.0-20250604233227-3ec7d1747ff2 h1:6lZ5F6RbuP2hFbFZmBeyhVsgHEjTLuhy2Du7OQOwmYw=
+github.com/BrunoPolaski/go-rest-err v0.0.0-20250604233227-3ec7d1747ff2/go.mod h1:3HNyoL2Wa/NM2fRmujBegBU5t3xrlk5JjAHo2EPOA8A=
+github.com/joho/godotenv v1.5.1 h1:7eLL/+HRGLY0ldzfGMeQkb7vMd0as4CfYvUVzLqw0N0=
+github.com/joho/godotenv v1.5.1/go.mod h1:f4LDr5Voq0i2e/R5DDNOoa2zzDfwtkZa6DnEwAbqwq4=
