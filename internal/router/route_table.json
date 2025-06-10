@@ -1,0 +1,7 @@
+[
+	{
+		"Method": "*",
+		"Path":   "/health",
+		"Target": "http://localhost:8000"
+	}
+]
