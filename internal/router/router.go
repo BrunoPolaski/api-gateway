@@ -14,8 +14,21 @@ import (
 	"github.com/BrunoPolaski/go-rest-err/rest_err"
 )
 
+var routes []entities.Route
+
 func Init() *http.ServeMux {
 	r := http.NewServeMux()
+
+	fileBytes, err := os.ReadFile("internal/router/route_table.json")
+	if err != nil {
+		logger.Error("Failed to read route table: " + err.Error())
+		return nil
+	}
+	err = json.Unmarshal(fileBytes, &routes)
+	if err != nil {
+		logger.Error("Failed to parse route table: " + err.Error())
+		return nil
+	}
 
 	r.Handle(
 		"/",
@@ -42,39 +55,42 @@ func Init() *http.ServeMux {
 }
 
 func handleGateway(w http.ResponseWriter, r *http.Request) {
-	var routes []entities.Route
-
-	fileBytes, err := os.ReadFile("internal/router/route_table.json")
-	if err != nil {
-		logger.Error("Failed to read route table: " + err.Error())
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-	err = json.Unmarshal(fileBytes, &routes)
-	if err != nil {
-		logger.Error("Failed to parse route table: " + err.Error())
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
 	for _, route := range routes {
-		if (route.Method == "*" || route.Method == r.Method) && strings.HasPrefix(r.URL.Path, route.Path) {
+		if (route.Method == "*" || strings.EqualFold(route.Method, r.Method)) && strings.HasPrefix(r.URL.Path, route.Path) {
 			logger.Info(fmt.Sprintf("Forwarding request to %s %s%s", r.Method, route.Target, r.URL.Path))
-			forwardRequest(w, r, route.Target)
+			forwardRequest(w, r, route.Target, route.Path)
 			return
 		}
 	}
 	http.NotFound(w, r)
 }
 
-func forwardRequest(w http.ResponseWriter, r *http.Request, target string) {
-	targetUrl, _ := url.Parse(target)
+func forwardRequest(w http.ResponseWriter, r *http.Request, target string, path string) {
+	targetUrl, err := url.Parse(target)
+	if err != nil {
+		logger.Error("Failed to parse target URL: " + err.Error())
+		restErr := rest_err.NewRestErr(
+			"Bad Gateway",
+			"Invalid target URL",
+			http.StatusBadGateway,
+			nil,
+		)
+		http.Error(w, restErr.Err, restErr.Code)
+		return
+	}
 
 	proxy := httputil.NewSingleHostReverseProxy(targetUrl)
 	proxy.Director = func(request *http.Request) {
 		request.URL.Scheme = targetUrl.Scheme
 		request.URL.Host = targetUrl.Host
-		request.URL.Path = targetUrl.Path
+
+		trimmed := strings.TrimPrefix(request.URL.Path, path)
+		if trimmed == "" {
+			trimmed = "/"
+		}
+		request.URL.Path = trimmed
+
+		request.Host = targetUrl.Host
 	}
 
 	proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
