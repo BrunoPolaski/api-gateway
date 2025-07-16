@@ -3,5 +3,25 @@
 		"Method": "*",
 		"Path":   "/health",
 		"Target": "http://localhost:8000"
+	},
+	{
+		"Method": "*",
+		"Path":   "/auth",
+		"Target": "http://auth-service:8080"
+	},
+	{
+		"Method": "*",
+		"Path":   "/sales",
+		"Target": "http://sales-service:8080"
+	},
+	{
+		"Method": "*",
+		"Path":   "/transactions",
+		"Target": "http://transactions-service:8080"
+	},
+	{
+		"Method": "*",
+		"Path":   "/messages",
+		"Target": "http://messages-service:8080"
 	}
 ]
