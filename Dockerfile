@@ -1,4 +1,4 @@
-FROM golang:1.24 AS builder
+FROM golang:1.25-rc-alpine AS builder
 
 WORKDIR /app
 
@@ -11,12 +11,12 @@ COPY main.go main.go
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o api-gateway .
 
-FROM golang:1.24-alpine AS runner
+FROM golang:1.25-rc-alpine AS runner
 
-# You need to admit, its a nice username for an api gateway container admin ok
-RUN adduser -D gatekeeper 
+RUN adduser -D gatekeeper
 
 COPY --from=builder /app/api-gateway /app/api-gateway
+COPY --from=builder /app/internal/router/route_table.json /app/internal/router/route_table.json
 
 RUN chown -R gatekeeper:gatekeeper /app
 RUN chmod +x /app/api-gateway
